@@ -51,27 +51,27 @@ It provides:
   <tr style="border: none;">
     <td align="center" style="border: none;">
       <img src="docs/images/login_page.png" alt="Login Screen" width="170" />
-      <div><sub>Alt: Login Screen</sub></div>
+      <div><sub><b></b>Login Screen<b>/sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/Dashboard.jpg" alt="Dashboard Screen" width="170" />
-      <div><sub>Alt: Dashboard Screen</sub></div>
+      <div><sub><b></b>Dashboard Screen</b></sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/report.png" alt="Report Issue Screen" width="170" />
-      <div><sub>Alt: Report Issue Screen</sub></div>
+      <div><sub><b></b>Report Issue Screen</b></sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/city_zone_heatmap_1.png" alt="City Zone Heat Map View 1" width="170" />
-      <div><sub>Alt: City Zone Heat Map View 1</sub></div>
+      <div><sub><b>City Zone Heat Map View 1<b></b></sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/city_zone_heatmap_2.png" alt="City Zone Heat Map View 2" width="170" />
-      <div><sub>Alt: City Zone Heat Map View 2</sub></div>
+      <div><sub><b>City Zone Heat Map View 2<b></sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/city_zone_heatmap_3.png" alt="City Zone Heat Map View 3" width="170" />
-      <div><sub>Alt: City Zone Heat Map View 3</sub></div>
+      <div><sub><b>City Zone Heat Map View 3<b></sub></div>
     </td>
   </tr>
 </table>
