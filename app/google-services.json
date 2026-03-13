@@ -12,7 +12,28 @@
           "package_name": "com.sanket.citypulse"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "802375917834-5fis3kb6vh9h7kcpug2avi0isohnhkfq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sanket.citypulse",
+            "certificate_hash": "b838b73bf3fc3d52c77a6b2d0653633eec0c226e"
+          }
+        },
+        {
+          "client_id": "802375917834-5o9h6pds3btuh0ddt0gmcrhbog4fr0l2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sanket.citypulse",
+            "certificate_hash": "32162e6c8da68c633bd894e645614aa754a7bfc3"
+          }
+        },
+        {
+          "client_id": "802375917834-04l3gb6o44ue4is1aoadmb1c8l7g74dp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAy-wfiaYAd8PE22hvEQL6zvikqOx0QRa8"
@@ -20,7 +41,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802375917834-04l3gb6o44ue4is1aoadmb1c8l7g74dp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

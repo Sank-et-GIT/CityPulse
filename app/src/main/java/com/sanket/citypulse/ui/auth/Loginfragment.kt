@@ -5,15 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.sanket.citypulse.R
 import com.sanket.citypulse.data.models.User
 import com.sanket.citypulse.databinding.FragmentLoginBinding
 import kotlinx.coroutines.launch
@@ -27,22 +24,6 @@ class LoginFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
-    // Web client ID from Firebase console — paste yours here
-    private val webClientId = "7802375917834-04l3gb6o44ue4is1aoadmb1c8l7g74dp.apps.googleusercontent.com"
-
-    private val signInLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            firebaseAuthWithGoogle(account.idToken!!)
-        } catch (e: ApiException) {
-            showStatus("Sign-in failed: ${e.message}")
-            hideLoading()
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,53 +34,68 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Already logged in — skip login screen
+        // Already logged in — skip to dashboard
         if (auth.currentUser != null) {
             navigateByRole()
             return
         }
 
-        binding.btnGoogleSignIn.setOnClickListener {
+        binding.btnLogin.setOnClickListener {
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+            if (email.isEmpty() || password.isEmpty()) {
+                showStatus("Please enter email and password")
+                return@setOnClickListener
+            }
             showLoading()
-            startGoogleSignIn()
+            loginUser(email, password)
+        }
+
+        binding.btnRegister.setOnClickListener {
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+            if (email.isEmpty() || password.isEmpty()) {
+                showStatus("Please enter email and password")
+                return@setOnClickListener
+            }
+            if (password.length < 6) {
+                showStatus("Password must be at least 6 characters")
+                return@setOnClickListener
+            }
+            showLoading()
+            registerUser(email, password)
         }
     }
 
-    private fun startGoogleSignIn() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(webClientId)
-            .requestEmail()
-            .build()
-        val client = GoogleSignIn.getClient(requireActivity(), gso)
-        signInLauncher.launch(client.signInIntent)
-    }
-
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
+    private fun loginUser(email: String, password: String) {
         lifecycleScope.launch {
             try {
-                auth.signInWithCredential(credential).await()
-                val user = auth.currentUser!!
-                saveUserToFirestore(user.uid, user.displayName ?: "", user.email ?: "")
+                auth.signInWithEmailAndPassword(email, password).await()
+                navigateByRole()
             } catch (e: Exception) {
-                showStatus("Auth failed: ${e.message}")
+                showStatus("Login failed: ${e.message}")
                 hideLoading()
             }
         }
     }
 
-    private suspend fun saveUserToFirestore(uid: String, name: String, email: String) {
-        val userRef = db.collection("users").document(uid)
-        val snapshot = userRef.get().await()
-        if (!snapshot.exists()) {
-            val newUser = User(uid = uid, name = name, email = email, role = "citizen")
-            userRef.set(newUser).await()
+    private fun registerUser(email: String, password: String) {
+        lifecycleScope.launch {
+            try {
+                auth.createUserWithEmailAndPassword(email, password).await()
+                val uid = auth.currentUser!!.uid
+                val newUser = User(uid = uid, name = email, email = email, role = "citizen")
+                db.collection("users").document(uid).set(newUser).await()
+                Toast.makeText(requireContext(), "Account created!", Toast.LENGTH_SHORT).show()
+                navigateByRole()
+            } catch (e: Exception) {
+                showStatus("Register failed: ${e.message}")
+                hideLoading()
+            }
         }
-        navigateByRole()
     }
 
     private fun navigateByRole() {
@@ -108,9 +104,8 @@ class LoginFragment : Fragment() {
                 val uid = auth.currentUser!!.uid
                 val snapshot = db.collection("users").document(uid).get().await()
                 val role = snapshot.getString("role") ?: "citizen"
-                Toast.makeText(requireContext(), "Welcome! Logged in as $role", Toast.LENGTH_SHORT).show()
                 hideLoading()
-                // Navigation to dashboard will be wired after dashboard is built
+                findNavController().navigate(R.id.action_login_to_dashboard)
             } catch (e: Exception) {
                 showStatus("Error: ${e.message}")
                 hideLoading()
@@ -120,12 +115,14 @@ class LoginFragment : Fragment() {
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
-        binding.btnGoogleSignIn.isEnabled = false
+        binding.btnLogin.isEnabled = false
+        binding.btnRegister.isEnabled = false
     }
 
     private fun hideLoading() {
         binding.progressBar.visibility = View.GONE
-        binding.btnGoogleSignIn.isEnabled = true
+        binding.btnLogin.isEnabled = true
+        binding.btnRegister.isEnabled = true
     }
 
     private fun showStatus(msg: String) {

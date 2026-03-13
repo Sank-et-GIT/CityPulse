@@ -8,8 +8,31 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.sanket.citypulse.ui.auth.LoginFragment"
-        android:label="Login" />
+        android:label="Login">
+        <action
+            android:id="@+id/action_login_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
-    <!-- Dashboard fragment will be added here next -->
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.sanket.citypulse.ui.dashboard.DashboardFragment"
+        android:label="Dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_dashboard_to_report"
+            app:destination="@id/reportFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportFragment"
+        android:name="com.sanket.citypulse.ui.report.ReportFragment"
+        android:label="Report Issue" />
 
 </navigation>
