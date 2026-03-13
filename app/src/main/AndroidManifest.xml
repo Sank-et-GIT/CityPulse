@@ -18,6 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CityPulse">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCMoaWU_y8Tov2GupuSqJpWtp_2XN6jv5o" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

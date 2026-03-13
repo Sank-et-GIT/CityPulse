@@ -204,6 +204,18 @@
             </androidx.cardview.widget.CardView>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewMap"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="🗺️  View City Zone Map"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                app:backgroundTint="#1D9E75"
+                app:cornerRadius="14dp"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReportIssue"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"

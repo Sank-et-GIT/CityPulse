@@ -32,7 +32,7 @@ class DashboardFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
 
     private val geminiApiKey = "AIzaSyApoXnmftB9vmegpco7d215DsKRZr90i3A"
-
+// val url = java.net.URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$geminiApiKey")
     private val sensorValues = mutableMapOf<String, Double>()
     private val sensorStatuses = mutableMapOf<String, String>()
 
@@ -51,6 +51,9 @@ class DashboardFragment : Fragment() {
         binding.btnRefreshAi.setOnClickListener { generateAiInsight() }
         binding.btnReportIssue.setOnClickListener {
             findNavController().navigate(R.id.action_dashboard_to_report)
+        }
+        binding.btnViewMap.setOnClickListener {
+            findNavController().navigate(R.id.action_dashboard_to_map)
         }
     }
 
@@ -162,8 +165,7 @@ class DashboardFragment : Fragment() {
             try {
                 val prompt = "You are a smart city AI. Based on: AQI=${sensorValues["aqi"]}(${sensorStatuses["aqi"]}), Traffic=${sensorValues["traffic"]}%(${sensorStatuses["traffic"]}), Energy=${sensorValues["energy"]}GW, Water=${sensorValues["water"]}%, Waste=${sensorValues["waste"]}%. Give 2-3 sentence actionable insight for citizens."
 
-                val url = java.net.URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$geminiApiKey")
-                val body = "{\"contents\":[{\"parts\":[{\"text\":\"$prompt\"}]}]}"
+                val url = java.net.URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$geminiApiKey");                val body = "{\"contents\":[{\"parts\":[{\"text\":\"$prompt\"}]}]}"
 
                 val conn = url.openConnection() as java.net.HttpURLConnection
                 conn.requestMethod = "POST"

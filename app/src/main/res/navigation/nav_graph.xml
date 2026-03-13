@@ -28,11 +28,19 @@
         <action
             android:id="@+id/action_dashboard_to_report"
             app:destination="@id/reportFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_map"
+            app:destination="@id/mapFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/reportFragment"
         android:name="com.sanket.citypulse.ui.report.ReportFragment"
         android:label="Report Issue" />
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.sanket.citypulse.ui.map.MapFragment"
+        android:label="City Map" />
 
 </navigation>
