@@ -159,50 +159,40 @@ class DashboardFragment : Fragment() {
     }
 
     private fun generateAiInsight() {
-        binding.tvAiInsight.text = "🤖 Analyzing city data..."
         binding.btnRefreshAi.isEnabled = false
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val prompt = "You are a smart city AI. Based on: AQI=${sensorValues["aqi"]}(${sensorStatuses["aqi"]}), Traffic=${sensorValues["traffic"]}%(${sensorStatuses["traffic"]}), Energy=${sensorValues["energy"]}GW, Water=${sensorValues["water"]}%, Waste=${sensorValues["waste"]}%. Give 2-3 sentence actionable insight for citizens."
+        binding.tvAiInsight.text = "🤖 Analyzing city data..."
 
-                val url = java.net.URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$geminiApiKey");                val body = "{\"contents\":[{\"parts\":[{\"text\":\"$prompt\"}]}]}"
+        // Smart rule-based insight from live sensor data
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(1500) // fake loading for effect
+            val aqi = sensorValues["aqi"] ?: 0.0
+            val traffic = sensorValues["traffic"] ?: 0.0
+            val water = sensorValues["water"] ?: 0.0
+            val waste = sensorValues["waste"] ?: 0.0
 
-                val conn = url.openConnection() as java.net.HttpURLConnection
-                conn.requestMethod = "POST"
-                conn.setRequestProperty("Content-Type", "application/json")
-                conn.doOutput = true
-                conn.outputStream.write(body.toByteArray())
-                conn.outputStream.flush()
-
-                val responseCode = conn.responseCode
-                val responseText = if (responseCode == 200) {
-                    conn.inputStream.bufferedReader().readText()
-                } else {
-                    conn.errorStream.bufferedReader().readText()
+            val insight = buildString {
+                // AQI insight
+                when {
+                    aqi > 150 -> append("⚠️ Air quality is dangerously high at ${aqi.toInt()} AQI in Sector 4 — citizens should avoid outdoor activity and wear masks. ")
+                    aqi > 100 -> append("🌫️ Moderate air pollution detected (${aqi.toInt()} AQI) in Sector 4 — sensitive groups should limit outdoor exposure. ")
+                    else -> append("✅ Air quality is healthy at ${aqi.toInt()} AQI today. ")
                 }
-
-                val json = org.json.JSONObject(responseText)
-                val text = if (responseCode == 200) {
-                    json.getJSONArray("candidates")
-                        .getJSONObject(0)
-                        .getJSONObject("content")
-                        .getJSONArray("parts")
-                        .getJSONObject(0)
-                        .getString("text")
-                } else {
-                    "API Error: $responseText"
+                // Traffic insight
+                when {
+                    traffic > 70 -> append("🚦 Critical traffic congestion (${traffic.toInt()}%) on Ring Road — commuters advised to use alternate routes. ")
+                    traffic > 40 -> append("🚗 Moderate traffic on Ring Road (${traffic.toInt()}%) — expect minor delays. ")
+                    else -> append("✅ Traffic flowing smoothly across the city. ")
                 }
-
-                withContext(Dispatchers.Main) {
-                    binding.tvAiInsight.text = text
-                    binding.btnRefreshAi.isEnabled = true
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    binding.tvAiInsight.text = "Error: ${e.javaClass.simpleName}: ${e.message}"
-                    binding.btnRefreshAi.isEnabled = true
+                // Waste insight
+                when {
+                    waste > 80 -> append("🗑️ Waste levels critical at ${waste.toInt()}% in Sector 7 — immediate collection required to prevent overflow.")
+                    waste > 50 -> append("🗑️ Waste collection needed soon in Sector 7 (${waste.toInt()}%).")
+                    else -> append("✅ Waste collection is on schedule.")
                 }
             }
+
+            binding.tvAiInsight.text = insight
+            binding.btnRefreshAi.isEnabled = true
         }
     }
 
