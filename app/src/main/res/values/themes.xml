@@ -1,5 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <style name="Theme.CityPulse" parent="android:Theme.Material.Light.NoActionBar" />
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.CityPulse" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#1D9E75</item>
+        <item name="colorPrimaryVariant">#0F6E56</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#378ADD</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="android:statusBarColor">#1D9E75</item>
+    </style>
 </resources>

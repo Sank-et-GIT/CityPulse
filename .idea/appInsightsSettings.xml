@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.sanket.citypulse" />
+                  <option name="mobileSdkAppId" value="1:802375917834:android:f5c2a9cb8ab53209fc9af3" />
+                  <option name="projectId" value="citypulse-acd76" />
+                  <option name="projectNumber" value="802375917834" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
