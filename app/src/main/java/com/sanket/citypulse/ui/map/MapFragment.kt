@@ -122,7 +122,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         val nagpur = LatLng(21.1458, 79.0882)
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(nagpur, 13f))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(nagpur, 11.8f))
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
         map.setOnMapClickListener { binding.bottomCard.visibility = View.GONE }
         loadSensorData()
@@ -136,7 +136,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 for (doc in docs) {
                     val type = doc.getString("type") ?: continue
                     val value = doc.getDouble("value") ?: 0.0
-                    val unit = doc.getString("unit") ?: ""
                     val status = doc.getString("status") ?: "good"
                     val latLng = sensorLocations[type] ?: continue
                     zones.add(SensorZone(

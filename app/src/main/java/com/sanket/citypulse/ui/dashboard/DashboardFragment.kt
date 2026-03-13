@@ -23,6 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 
 class DashboardFragment : Fragment() {
 
@@ -32,7 +34,6 @@ class DashboardFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
 
     private val geminiApiKey = "AIzaSyApoXnmftB9vmegpco7d215DsKRZr90i3A"
-// val url = java.net.URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$geminiApiKey")
     private val sensorValues = mutableMapOf<String, Double>()
     private val sensorStatuses = mutableMapOf<String, String>()
 
@@ -161,39 +162,146 @@ class DashboardFragment : Fragment() {
     private fun generateAiInsight() {
         binding.btnRefreshAi.isEnabled = false
         binding.tvAiInsight.text = "🤖 Analyzing city data..."
+        binding.btnRefreshAi.isEnabled = false
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val prompt = "You are a smart city AI. Based on: AQI=${sensorValues["aqi"]}(${sensorStatuses["aqi"]}), Traffic=${sensorValues["traffic"]}%(${sensorStatuses["traffic"]}), Energy=${sensorValues["energy"]}GW, Water=${sensorValues["water"]}%, Waste=${sensorValues["waste"]}%. Give 2-3 sentence actionable insight for citizens."
+                val text = requestGeminiInsight(prompt)
 
-        // Smart rule-based insight from live sensor data
-        lifecycleScope.launch {
-            kotlinx.coroutines.delay(1500) // fake loading for effect
-            val aqi = sensorValues["aqi"] ?: 0.0
-            val traffic = sensorValues["traffic"] ?: 0.0
-            val water = sensorValues["water"] ?: 0.0
-            val waste = sensorValues["waste"] ?: 0.0
-
-            val insight = buildString {
-                // AQI insight
-                when {
-                    aqi > 150 -> append("⚠️ Air quality is dangerously high at ${aqi.toInt()} AQI in Sector 4 — citizens should avoid outdoor activity and wear masks. ")
-                    aqi > 100 -> append("🌫️ Moderate air pollution detected (${aqi.toInt()} AQI) in Sector 4 — sensitive groups should limit outdoor exposure. ")
-                    else -> append("✅ Air quality is healthy at ${aqi.toInt()} AQI today. ")
+                withContext(Dispatchers.Main) {
+                    binding.tvAiInsight.text = text
+                    binding.btnRefreshAi.isEnabled = true
                 }
-                // Traffic insight
-                when {
-                    traffic > 70 -> append("🚦 Critical traffic congestion (${traffic.toInt()}%) on Ring Road — commuters advised to use alternate routes. ")
-                    traffic > 40 -> append("🚗 Moderate traffic on Ring Road (${traffic.toInt()}%) — expect minor delays. ")
-                    else -> append("✅ Traffic flowing smoothly across the city. ")
-                }
-                // Waste insight
-                when {
-                    waste > 80 -> append("🗑️ Waste levels critical at ${waste.toInt()}% in Sector 7 — immediate collection required to prevent overflow.")
-                    waste > 50 -> append("🗑️ Waste collection needed soon in Sector 7 (${waste.toInt()}%).")
-                    else -> append("✅ Waste collection is on schedule.")
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding.tvAiInsight.text = "Error: ${e.javaClass.simpleName}: ${e.message}"
+                    binding.btnRefreshAi.isEnabled = true
                 }
             }
-
-            binding.tvAiInsight.text = insight
-            binding.btnRefreshAi.isEnabled = true
         }
+    }
+
+    private suspend fun requestGeminiInsight(prompt: String): String {
+        val models = fetchSupportedModelsV1Beta()
+        val modelsToTry = if (models.isEmpty()) {
+            listOf("models/gemini-1.5-flash", "models/gemini-1.5-pro")
+        } else {
+            models
+        }
+
+        for (modelName in modelsToTry) {
+            val (code, responseText) = postGenerateContentV1Beta(modelName, prompt)
+            if (code == 200) {
+                val text = extractCandidateText(responseText)
+                if (text.isNotBlank()) return text
+            }
+        }
+
+        return buildLocalFallbackInsight()
+    }
+
+    private fun fetchSupportedModelsV1Beta(): List<String> {
+        return try {
+            val url = java.net.URL("https://generativelanguage.googleapis.com/v1beta/models?key=$geminiApiKey")
+            val conn = url.openConnection() as java.net.HttpURLConnection
+            conn.requestMethod = "GET"
+            conn.connectTimeout = 10000
+            conn.readTimeout = 15000
+
+            val code = conn.responseCode
+            val body = if (code == 200) {
+                conn.inputStream.bufferedReader().readText()
+            } else {
+                conn.errorStream?.bufferedReader()?.readText().orEmpty()
+            }
+            if (code != 200) return emptyList()
+
+            val items = JSONObject(body).optJSONArray("models") ?: JSONArray()
+            val result = mutableListOf<String>()
+            for (i in 0 until items.length()) {
+                val item = items.optJSONObject(i) ?: continue
+                val name = item.optString("name")
+                val methods = item.optJSONArray("supportedGenerationMethods") ?: JSONArray()
+                val canGenerate = (0 until methods.length()).any { methods.optString(it) == "generateContent" }
+                if (canGenerate && name.startsWith("models/gemini")) {
+                    result.add(name)
+                }
+            }
+            result
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun postGenerateContentV1Beta(modelName: String, prompt: String): Pair<Int, String> {
+        return try {
+            val url = java.net.URL("https://generativelanguage.googleapis.com/v1beta/$modelName:generateContent?key=$geminiApiKey")
+            val payload = JSONObject()
+                .put("contents", JSONArray().put(
+                    JSONObject().put("parts", JSONArray().put(
+                        JSONObject().put("text", prompt)
+                    ))
+                ))
+                .toString()
+
+            val conn = url.openConnection() as java.net.HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.connectTimeout = 10000
+            conn.readTimeout = 20000
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.doOutput = true
+            conn.outputStream.use { it.write(payload.toByteArray()) }
+
+            val code = conn.responseCode
+            val body = if (code == 200) {
+                conn.inputStream.bufferedReader().readText()
+            } else {
+                conn.errorStream?.bufferedReader()?.readText().orEmpty()
+            }
+            code to body
+        } catch (e: Exception) {
+            500 to (e.message ?: "Network failure")
+        }
+    }
+
+    private fun extractCandidateText(responseText: String): String {
+        return try {
+            JSONObject(responseText)
+                .optJSONArray("candidates")
+                ?.optJSONObject(0)
+                ?.optJSONObject("content")
+                ?.optJSONArray("parts")
+                ?.optJSONObject(0)
+                ?.optString("text")
+                ?.trim()
+                .orEmpty()
+        } catch (_: Exception) {
+            ""
+        }
+    }
+
+    private fun buildLocalFallbackInsight(): String {
+        val aqi = sensorValues["aqi"] ?: 0.0
+        val traffic = sensorValues["traffic"] ?: 0.0
+        val waste = sensorValues["waste"] ?: 0.0
+
+        val airMsg = if (aqi >= 100) {
+            "Air quality is elevated; limit prolonged outdoor activity during peak hours."
+        } else {
+            "Air quality is moderate today; normal outdoor activity is generally fine."
+        }
+        val trafficMsg = if (traffic >= 75) {
+            "Traffic is heavy—use public transport or stagger travel time where possible."
+        } else {
+            "Traffic flow is manageable across key routes."
+        }
+        val wasteMsg = if (waste >= 80) {
+            "Waste load is near critical, so prioritize segregation and timely local disposal."
+        } else {
+            "Waste collection load is stable."
+        }
+
+        return "$airMsg $trafficMsg $wasteMsg"
     }
 
     override fun onDestroyView() {
