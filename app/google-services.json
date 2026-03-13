@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "802375917834",
+    "project_id": "citypulse-acd76",
+    "storage_bucket": "citypulse-acd76.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802375917834:android:f5c2a9cb8ab53209fc9af3",
+        "android_client_info": {
+          "package_name": "com.sanket.citypulse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAy-wfiaYAd8PE22hvEQL6zvikqOx0QRa8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
