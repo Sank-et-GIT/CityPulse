@@ -6,6 +6,7 @@
     <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin" />
     <img src="https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black" alt="Firebase" />
     <img src="https://img.shields.io/badge/Maps-Google%20Maps-4285F4?logo=googlemaps&logoColor=white" alt="Google Maps" />
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
   </p>
 </div>
 
@@ -51,15 +52,15 @@ It provides:
   <tr style="border: none;">
     <td align="center" style="border: none;">
       <img src="docs/images/login_page.png" alt="Login Screen" width="170" />
-      <div><sub><b></b>Login Screen<b>/sub></div>
+      <div><sub><b>Login Screen</b>b><sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/Dashboard.jpg" alt="Dashboard Screen" width="170" />
-      <div><sub><b></b>Dashboard Screen</b></sub></div>
+      <div><sub><b>Dashboard Screen</b></sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/report.png" alt="Report Issue Screen" width="170" />
-      <div><sub><b></b>Report Issue Screen</b></sub></div>
+      <div><sub><b>Report Issue Screen</b></sub></div>
     </td>
     <td align="center" style="border: none;">
       <img src="docs/images/city_zone_heatmap_1.png" alt="City Zone Heat Map View 1" width="170" />
@@ -176,5 +177,4 @@ Navigation graph:
 - Verify Firestore rules permit expected reads/writes for your environment.
 
 ## License
-
-No license file is currently included in this repository.
+This project is licensed under the MIT License - see the LICENSE file for details.
